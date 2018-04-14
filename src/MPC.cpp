@@ -21,6 +21,21 @@ double dt = 0.11;
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
 
+// Reference values
+const double ref_cte = 0;
+const double ref_epsi = 0;
+const double ref_v = 95;
+
+const size_t x_start = 0;
+const size_t y_start = x_start + N;
+const size_t psi_start = y_start + N;
+const size_t v_start = psi_start + N;
+const size_t cte_start = v_start + N;
+const size_t epsi_start = cte_start + N;
+const size_t delta_psi_start = epsi_start + N;
+const size_t a_start = delta_psi_start + N - 1;
+
+
 class FG_eval {
  public:
   // Fitted polynomial coefficients
