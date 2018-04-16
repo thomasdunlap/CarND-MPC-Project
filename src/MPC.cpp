@@ -5,7 +5,7 @@
 
 using CppAD::AD;
 
-// TODO: Set the timestep length and duration
+// Set the timestep length and duration
 size_t N = 10;
 double dt = 0.11;
 
@@ -44,10 +44,32 @@ class FG_eval {
 
   typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
   void operator()(ADvector& fg, const ADvector& vars) {
-    // TODO: implement MPC
+    // implement MPC
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
+
+    // Initiate cost
+    fg[0] = 0;
+
+    // Adjust for CTE, OE, and velocity
+    for (int i = 0; i < N; i++) {
+      fg[0] += 2000 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
+      fg[0] += 1500 * CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
+      fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
+    }
+
+    // Adjust for actuator use
+    for (int i = 0; i < N-1; i++) {
+      fg[0] += 20000 * CppAD::pow(vars[delta_psi_start + i], 2);
+      fg[0] += CppAD::pow(vars[a_start + i], 2);
+    }
+
+    // Adjust sequential actuations for large portions of missing data
+    for (int i = 0; i < N-2; i++) {
+      fg[0] += 2 * CppAD::pow(vars[delta_psi_start + i + 1] - vars[delta_psi_start + 1], 2);
+      fg[0] += CppAD::pow(vars[a-start + i + 1] - vars[a-start + 1], 2);
+    }
   }
 };
 
