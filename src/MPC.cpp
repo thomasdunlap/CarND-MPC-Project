@@ -70,6 +70,43 @@ class FG_eval {
       fg[0] += 2 * CppAD::pow(vars[delta_psi_start + i + 1] - vars[delta_psi_start + 1], 2);
       fg[0] += CppAD::pow(vars[a-start + i + 1] - vars[a-start + 1], 2);
     }
+
+    // Constraints. All + 1 because cost stored in fg[0]
+    fg[x_start + 1] = vars[x_start];
+    fg[y_start + 1] = vars[y_start];
+    fg[psy_start + 1] = vars[psi_start];
+    fg[v_start + 1] = vars[v_start];
+    fg[cte_start + 1] = vars[cte_start];
+    fg[epsi_start + 1] = vars[epsi_start];
+
+    for (int i = 0; i < N -1; i++) {
+      AD<double> x0 = vars[x_start + i];
+      AD<double> x0 = vars[x_start + i];
+      AD<double> y0 = vars[y_start + i];
+      AD<double> psi0 = vars[psi_start + i];
+      AD<double> v0 = vars[v_start + i];
+      AD<double> delta0 = vars[deltaPsi_start + i];
+      AD<double> a0 = vars[a_start + i];
+      AD<double> epsi0 = vars[epsi_start + i];
+
+      AD<double> x1 = vars[x_start + i + 1];
+      AD<double> y1 = vars[y_start + i + 1];
+      AD<double> psi1 = vars[psi_start + i +1];
+      AD<double> v1 = vars[v_start + i + 1];
+      AD<double> cte1 = vars[cte_start + i + 1];
+      AD<double> epsi1 = vars[epsi_start + i + 1];
+
+      AD<double> f_x0;
+      AD<double> psides0;
+      // make it possible to switch between 2nd and 3rd degree polynomial fit
+      if (coeffs.size() == 4) {
+        f_x0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2) + coeffs[3] * CppAD::pow(x0, 3);
+        psides0 = CppAD::atan(coeffs[1] + 2 * coeffs[2] * x0 + 3 * coeffs[3] * CppAD::pow(x0,2));
+      } else {
+        f_x0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2);
+        psides0 = CppAD::atan(coeffs[1] + 2 * coeffs[2] * x0);
+      }
+    }
   }
 };
 
