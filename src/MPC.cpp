@@ -138,9 +138,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // element vector and there are 10 timesteps. The number of variables is:
   //
   // 4 * 10 + 2 * 9
-  size_t n_vars = 0;
-  // TODO: Set the number of constraints
-  size_t n_constraints = 0;
+  // number of model variables (includes both states and inputs).
+  const int dim_state_vec = 6; // x, y, psi, v, cte, epsi
+  const int dim_actuator_vec = 2; // steering, acceleration
+
+  size_t n_vars = N * dim_state_vec + (N - 1) * dim_actuator_vec;
+  // Set the number of constraints
+  size_t n_constraints = N * dim_state_vec;
 
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
