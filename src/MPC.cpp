@@ -253,9 +253,9 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   // Waypoints
   int n_points = N - 1 - 7;
-  for (int i = 0; i < num_points; i++) {
+  for (int i = 0; i < n_points; i++) {
     result[i + 2] = solution.x[x_start + 1];
-    result[num_points + i + 2] = solution.x[y_start];
+    result[n_points + i + 2] = solution.x[y_start];
   }
 
   return result;
