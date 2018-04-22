@@ -85,7 +85,7 @@ class FG_eval {
       AD<double> y0 = vars[y_start + i];
       AD<double> psi0 = vars[psi_start + i];
       AD<double> v0 = vars[v_start + i];
-      AD<double> delta0 = vars[deltaPsi_start + i];
+      AD<double> delta0 = vars[delta_psi_start + i];
       AD<double> a0 = vars[a_start + i];
       AD<double> epsi0 = vars[epsi_start + i];
 
@@ -149,7 +149,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
   Dvector vars(n_vars);
-  for (int i = 0; i < n_vars; i++) {
+  for (int i = 0; i < n_vars; i++) { //pointless? other vectors than set values?
     vars[i] = 0;
   }
 
@@ -163,7 +163,24 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   Dvector vars_lowerbound(n_vars);
   Dvector vars_upperbound(n_vars);
-  // : Set lower and upper limits for variables.
+  // Set lower and upper limits for variables.
+  for (int i = 0; i < delta_psi_start; i++) {
+    vars_lowerbound[i] = -1 * numeric_limits<double>::max(); // just -numeric_limits::max?
+    vars_upperbound[i] = numeric_limits<double>::max();
+  }
+
+  // Set steering bounds
+  const double max_angle = 25 * M_PI / 180;
+  for (int i = delta_psi_start; i < a_start; i++) {
+    vars_lowerbound[i] = -max_angle;
+    vars_upperbound[i] = max_angle;
+  }
+
+  // Set acceleration bounds
+  for (int i = a_start; i < n_vars; i++) {
+    vars_lowerbound[i] = -1.0;
+    vars_upperbound[i] = 1.0;
+  }
 
   // Lower and upper limits for the constraints
   // Should be 0 besides initial state.
