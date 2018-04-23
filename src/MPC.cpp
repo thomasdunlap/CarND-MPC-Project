@@ -22,18 +22,18 @@ double dt = 0.11;
 const double Lf = 2.67;
 
 // Reference values
-const double ref_cte = 0;
-const double ref_epsi = 0;
-const double ref_v = 95;
+double ref_cte = 0;
+double ref_epsi = 0;
+double ref_v = 90;
 
-const size_t x_start = 0;
-const size_t y_start = x_start + N;
-const size_t psi_start = y_start + N;
-const size_t v_start = psi_start + N;
-const size_t cte_start = v_start + N;
-const size_t epsi_start = cte_start + N;
-const size_t delta_psi_start = epsi_start + N;
-const size_t a_start = delta_psi_start + N - 1;
+size_t x_start = 0;
+size_t y_start = x_start + N;
+size_t psi_start = y_start + N;
+size_t v_start = psi_start + N;
+size_t cte_start = v_start + N;
+size_t epsi_start = cte_start + N;
+size_t delta_psi_start = epsi_start + N;
+size_t a_start = delta_psi_start + N - 1;
 
 
 class FG_eval {
@@ -61,26 +61,26 @@ class FG_eval {
 
     // Adjust for actuator use
     for (int i = 0; i < N-1; i++) {
-      fg[0] += 20000 * CppAD::pow(vars[delta_psi_start + i], 2);
-      fg[0] += CppAD::pow(vars[a_start + i], 2);
+      fg[0] += 50 * CppAD::pow(vars[delta_psi_start + i], 2);
+      fg[0] += 50 * CppAD::pow(vars[a_start + i], 2);
     }
 
     // Adjust sequential actuations for large portions of missing data
     for (int i = 0; i < N-2; i++) {
-      fg[0] += 2 * CppAD::pow(vars[delta_psi_start + i + 1] - vars[delta_psi_start + 1], 2);
-      fg[0] += CppAD::pow(vars[a-start + i + 1] - vars[a-start + 1], 2);
+      fg[0] += 25000 * CppAD::pow(vars[delta_psi_start + i + 1] - vars[delta_psi_start + 1], 2);
+      fg[0] += 1000 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + 1], 2);
     }
 
     // Constraints. All + 1 because cost stored in fg[0]
     fg[x_start + 1] = vars[x_start];
     fg[y_start + 1] = vars[y_start];
-    fg[psy_start + 1] = vars[psi_start];
+    fg[psi_start + 1] = vars[psi_start];
     fg[v_start + 1] = vars[v_start];
     fg[cte_start + 1] = vars[cte_start];
     fg[epsi_start + 1] = vars[epsi_start];
 
-    for (int i = 0; i < N -1; i++) {
-      AD<double> x0 = vars[x_start + i];
+    for (int i = 0; i < N - 1; i++) {
+      // State at t
       AD<double> x0 = vars[x_start + i];
       AD<double> y0 = vars[y_start + i];
       AD<double> psi0 = vars[psi_start + i];
@@ -89,9 +89,10 @@ class FG_eval {
       AD<double> a0 = vars[a_start + i];
       AD<double> epsi0 = vars[epsi_start + i];
 
+      // State at t + 1
       AD<double> x1 = vars[x_start + i + 1];
       AD<double> y1 = vars[y_start + i + 1];
-      AD<double> psi1 = vars[psi_start + i +1];
+      AD<double> psi1 = vars[psi_start + i + 1];
       AD<double> v1 = vars[v_start + i + 1];
       AD<double> cte1 = vars[cte_start + i + 1];
       AD<double> epsi1 = vars[epsi_start + i + 1];
@@ -247,15 +248,15 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
-  std::vector<double> result(N * 2 - 14);
-  result[0] += solution.x[delta_psi_start];
-  result[1] += solution.x[a_start];
+  vector<double> result;
+  result.push_back(solution.x[delta_psi_start]);
+  result.push_back(solution.x[a_start]);
 
   // Waypoints
-  int n_points = N - 1 - 7;
+  int n_points = N - 2;
   for (int i = 0; i < n_points; i++) {
-    result[i + 2] = solution.x[x_start + 1];
-    result[n_points + i + 2] = solution.x[y_start];
+    result.push_back(solution.x[x_start + i + 1]);
+    result.push_back(solution.x[y_start + i + 1]);
   }
 
   return result;
