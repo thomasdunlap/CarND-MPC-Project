@@ -53,8 +53,8 @@ class FG_eval {
 
      // The part of the cost based on the reference state.
     for( int i = 0; i < N; i++ ) {
-      fg[0] += 1000*CppAD::pow(vars[cte_start + i] - ref_cte, 2);
-      fg[0] += 1000*CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
+      fg[0] += 1000 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
+      fg[0] += 1000 * CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
       fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
     }
 
@@ -131,7 +131,7 @@ MPC::~MPC() {}
 
 vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   bool ok = true;
-  
+
   typedef CPPAD_TESTVECTOR(double) Dvector;
 
   const double x = state[0];
