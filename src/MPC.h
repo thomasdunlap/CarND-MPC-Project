@@ -8,8 +8,7 @@ using namespace std;
 
 class MPC {
  public:
-
-
+   
    MPC();
 
    virtual ~MPC();
@@ -17,8 +16,6 @@ class MPC {
   // Solve the model given an initial state and polynomial coefficients.
   // Return the first actuations.
   vector<double> Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs);
- //private:
-   //const double Lf = 2.67;
 };
 
 #endif /* MPC_H */
