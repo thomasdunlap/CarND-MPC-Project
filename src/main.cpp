@@ -129,14 +129,14 @@ int main() {
           const double psi0 = 0;
           const double cte0 = coeffs[0];
           const double epsi0 = -atan(coeffs[1]);
-
+          const double Lf = 2.67;
           // State after delay.
           double x_delay = x0 + ( v * cos(psi0) * delay );
           double y_delay = y0 + ( v * sin(psi0) * delay );
-          double psi_delay = psi0 - ( v * delta * delay / mpc.Lf );
+          double psi_delay = psi0 - ( v * delta * delay / Lf );
           double v_delay = v + a * delay;
           double cte_delay = cte0 + ( v * sin(epsi0) * delay );
-          double epsi_delay = epsi0 - ( v * atan(coeffs[1]) * delay / mpc.Lf );
+          double epsi_delay = epsi0 - ( v * atan(coeffs[1]) * delay / Lf );
 
           // Define the state vector.
           Eigen::VectorXd state(6);
