@@ -177,7 +177,7 @@ int main() {
 
           double poly_inc = 2.5;
           int num_points = 25;
-          for (int i = 0; i < num_points; i++  {
+          for (int i = 0; i < num_points; i++)  {
             double x = poly_inc * i;
             next_x_vals.push_back(x);
             next_y_vals.push_back(polyeval(coeffs, x));
