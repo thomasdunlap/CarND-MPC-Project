@@ -91,8 +91,8 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
-          double delta= j[1]["steering_angle"];
-          double a = j[1]["throttle"];
+          double steer0 = j[1]["steering_angle"];
+          double throttle0 = j[1]["throttle"];
 
           /*
           * Calculate steering angle and throttle using MPC.
@@ -101,13 +101,12 @@ int main() {
           *
           */
 
-          // Preprocessing.
-          // Transforms waypoints coordinates to the cars coordinates.
+          // Waypoint coordinates to car's coordinates.
           size_t n_waypoints = ptsx.size();
           Eigen::VectorXd ptsx_transformed(n_waypoints);
           Eigen::VectorXd ptsy_transformed(n_waypoints);
 
-          for (unsigned int i = 0; i < n_waypoints; i++ ) {
+          for (int i = 0; i < n_waypoints; i++ ) { //unsigned int?
             double dx = ptsx[i] - px;
             double dy = ptsy[i] - py;
             // Might need to control for -psi for corners.  Too many digits?  too small?
@@ -132,8 +131,8 @@ int main() {
           // State after delay.
           double x_delay = x0 + (v * cos(psi0) * delay);
           double y_delay = y0 + (v * sin(psi0) * delay);
-          double psi_delay = psi0 - (v * delta * delay / Lf);
-          double v_delay = v + a * delay;
+          double psi_delay = psi0 - (v * steer0 * delay / Lf);
+          double v_delay = v + throttle0 * delay;
           double cte_delay = cte0 + (v * sin(epsi0) * delay);
           double epsi_delay = epsi0 - (v * atan(coeffs[1]) * delay / Lf);
 
@@ -144,7 +143,7 @@ int main() {
           // Find the MPC solution.
           auto vars = mpc.Solve(state, coeffs);
 
-          double steer_value = vars[0]/deg2rad(25);
+          double steer_value = vars[0] / deg2rad(25);
           double throttle_value = vars[1];
 
           json msgJson;
