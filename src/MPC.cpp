@@ -23,7 +23,7 @@ const double Lf = 2.67;
 
 const double ref_cte = 0;
 const double ref_epsi = 0;
-const double ref_v = 100;
+const double ref_v = 110;
 
 const size_t x_start = 0;
 const size_t y_start = x_start + N;
@@ -113,12 +113,12 @@ class FG_eval {
       // v_[t] = v[t-1] + a[t-1] * dt
       // cte[t] = f(x[t-1]) - y[t-1] + v[t-1] * sin(epsi[t-1]) * dt
       // epsi[t] = psi[t] - psides[t-1] + v[t-1] * delta[t-1] / Lf * dt
-      fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
-      fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[1 + psi_start + t] = psi1 - (psi0 - v0 / Lf * delta0 * dt);
-      fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
-      fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-      fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 / Lf * delta0 * dt);
+      fg[x_start + t + 1] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
+      fg[y_start + t + 1] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
+      fg[psi_start + t + 1] = psi1 - (psi0 - v0 / Lf * delta0 * dt);
+      fg[v_start + t + 1] = v1 - (v0 + a0 * dt);
+      fg[cte_start + t + 1] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+      fg[epsi_start + t + 1] = epsi1 - ((psi0 - psides0) - v0 / Lf * delta0 * dt);
     }
   }
 };
@@ -146,9 +146,9 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // element vector and there are 10 timesteps. The number of variables is:
   //
   // 4 * 10 + 2 * 9
-  const size_t n_vars = N * 6 + (N - 1) * 2;
+  size_t n_vars = N * 6 + (N - 1) * 2;
   // Set the number of constraints
-  const size_t n_constraints = N * 6;
+  size_t n_constraints = N * 6;
 
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
@@ -172,8 +172,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // The upper and lower limits of delta are set to -25 to 25
   // degrees (values in radians).
   for ( int i = delta_start; i < a_start; i++ ) {
-    vars_lowerbound[i] = -0.436332*Lf;
-    vars_upperbound[i] = 0.43632*Lf;
+    vars_lowerbound[i] = -0.436332 * Lf;
+    vars_upperbound[i] = 0.43632 * Lf;
   }
 
   // Actuator limits.
@@ -238,8 +238,8 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   ok &= solution.status == CppAD::ipopt::solve_result<Dvector>::success;
 
   // Cost
-  // auto cost = solution.obj_value;
-  // std::cout << "Cost " << cost << std::endl;
+  auto cost = solution.obj_value;
+  std::cout << "Cost " << cost << std::endl;
 
   //  Return the first actuator values. The variables can be accessed with
   // `solution.x[i]`.
