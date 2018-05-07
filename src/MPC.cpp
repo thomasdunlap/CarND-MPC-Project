@@ -19,20 +19,20 @@ double dt = 0.11;
 // presented in the classroom matched the previous radius.
 //
 // This is the length from front to CoG that has a similar radius.
-const double Lf = 2.67;
+double Lf = 2.67;
 
-const double ref_cte = 0;
-const double ref_epsi = 0;
-const double ref_v = 130;
+double ref_cte = 0;
+double ref_epsi = 0;
+double ref_v = 150;
 
-const size_t x_start = 0;
-const size_t y_start = x_start + N;
-const size_t psi_start = y_start + N;
-const size_t v_start = psi_start + N;
-const size_t cte_start = v_start + N;
-const size_t epsi_start = cte_start + N;
-const size_t delta_start = epsi_start + N;
-const size_t a_start = delta_start + N - 1;
+size_t x_start = 0;
+size_t y_start = x_start + N;
+size_t psi_start = y_start + N;
+size_t v_start = psi_start + N;
+size_t cte_start = v_start + N;
+size_t epsi_start = cte_start + N;
+size_t delta_start = epsi_start + N;
+size_t a_start = delta_start + N - 1;
 
 class FG_eval {
  public:
@@ -47,14 +47,14 @@ class FG_eval {
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
 
-    // The cost is stored is the first element of `fg`.
-    // Any additions to the cost should be added to `fg[0]`.
+
+    // Cost stored in fg[0]
     fg[0] = 0;
 
      // The part of the cost based on the reference state.
     for(int i = 0; i < N; i++) {
-      fg[0] += 1000 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
-      fg[0] += 1000 * CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
+      fg[0] += 100 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
+      fg[0] += 100 * CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
       fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
     }
 
@@ -68,7 +68,7 @@ class FG_eval {
     // (how smooth the actuations are)
     for (int i = 0; i < N - 2; i++) {
       fg[0] += 250000 * CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
-      fg[0] += 5000 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
+      fg[0] += 10000 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
     }
 
     // Initial constraints.
