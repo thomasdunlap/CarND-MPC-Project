@@ -106,12 +106,12 @@ int main() {
           Eigen::VectorXd ptsx_transformed(n_waypoints);
           Eigen::VectorXd ptsy_transformed(n_waypoints);
 
-          for (int i = 0; i < n_waypoints; i++ ) { //unsigned int?
-            double dx = ptsx[i] - px;
-            double dy = ptsy[i] - py;
-            // Might need to control for -psi for corners.  Too many digits?  too small?
-            ptsx_transformed(i) = dx * cos(-psi) - dy * sin(-psi);
-            ptsy_transformed(i) = dx * sin(-psi) + dy * cos(-psi);
+          for (int i = 0; i < n_waypoints; i++ ) {
+            double x_diff = ptsx[i] - px;
+            double y_diff = ptsy[i] - py;
+
+            ptsx_transformed(i) = x_diff * cos(-psi) - y_diff * sin(-psi);
+            ptsy_transformed(i) = x_diff * sin(-psi) + y_diff * cos(-psi);
           }
 
           // Fit polynomial to the points - 3rd order.
@@ -120,7 +120,7 @@ int main() {
           // Actuator delay in ms / s.
           const double delay = 100 / 1000.0;
 
-          // Initial state.
+          // State at time t
           const double x0 = 0;
           const double y0 = 0;
           const double psi0 = 0;
@@ -128,7 +128,7 @@ int main() {
           const double epsi0 = -atan(coeffs[1]);
           const double Lf = 2.67;
 
-          // State after delay.
+          // State at time t + actuator delay
           double x_delay = x0 + (v * cos(psi0) * delay);
           double y_delay = y0 + (v * sin(psi0) * delay);
           double psi_delay = psi0 - (v * steer0 * delay / Lf);
@@ -136,11 +136,11 @@ int main() {
           double cte_delay = cte0 + (v * sin(epsi0) * delay);
           double epsi_delay = epsi0 - (v * atan(coeffs[1]) * delay / Lf);
 
-          // Define the state vector.
+          // Assign state values
           Eigen::VectorXd state(6);
           state << x_delay, y_delay, psi_delay, v_delay, cte_delay, epsi_delay;
 
-          // Find the MPC solution.
+          // Define steer and throttle vars  with Solve() from mpc class
           auto vars = mpc.Solve(state, coeffs);
 
           double steer_value = vars[0] / deg2rad(25);
@@ -152,10 +152,11 @@ int main() {
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
 
-          //Display the MPC predicted trajectory
+          // Display the MPC predicted trajectory
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
+          // mpc_x_vals are even, mpc_y_vals are odd
           for (int i = 2; i < vars.size(); i++) {
             if (i % 2 == 0) {
               mpc_x_vals.push_back(vars[i]);
@@ -174,10 +175,9 @@ int main() {
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 
-          double poly_inc = 2.5;
-          int num_points = 25;
-          for (int i = 0; i < num_points; i++)  {
-            double x = poly_inc * i;
+          // Yellow line with 25 points a distance of 2.5 apart
+          for (int i = 0; i < 25; i++)  {
+            double x = 2.5 * i;
             next_x_vals.push_back(x);
             next_y_vals.push_back(polyeval(coeffs, x));
           }
@@ -190,7 +190,7 @@ int main() {
 
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
+          std::cout << msg << std::endl;
           // Latency
           // The purpose is to mimic real driving conditions where
           // the car does actuate the commands instantly.
