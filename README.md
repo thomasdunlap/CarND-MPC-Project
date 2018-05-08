@@ -3,6 +3,34 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+My Model Predictive Controller (MPC) project is a kinematic bicycle model that operates in a simulated environment, and ignores tire-road forces such as torque, friction, and inertia.  The simulator provides values like direction, position, speed, and reference waypoints for the model to potentially take advantage of.  The MPC is designed around this code:
+
+```c++
+x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+v_[t+1] = v[t] + a[t] * dt
+cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+```
+Where:
+
+|Variable| Information Relayed About Vehicle |
+|--------|---------|
+|x       | Coordinate position on x-plane|
+|y       | Coordinate position on y-plane|
+|psi     | Heading|
+|v       | Velocity|
+|cte     | Cross-track error|
+|epsi    | Orientation error|
+
+
+## Simulation Video
+Here is a short video of my MPC guiding the car around the simulation: #####
+
+
+
+
 ## Dependencies
 
 * cmake >= 3.5
