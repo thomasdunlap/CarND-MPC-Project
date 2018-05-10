@@ -13,7 +13,7 @@ My Model Predictive Controller (MPC) project is a kinematic bicycle model that o
   cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt;
   epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt;
 ```
-Where:
+These variables represent:
 
 |Variable| Information Relayed About Vehicle |
 |--------|---------|
