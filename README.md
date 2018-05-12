@@ -29,6 +29,10 @@ These variables represent:
 Here is a short video of my MPC guiding the car around the simulation: #####
 
 
+Timesteps and Frequency
+I chose 8 timesteps at a frequency of 0.11 seconds.
+
+
 ---
 
 ## Dependencies
