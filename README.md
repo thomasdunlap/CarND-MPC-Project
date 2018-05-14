@@ -33,7 +33,8 @@ Here is a short video of my MPC guiding the car around the simulation: #####
 I chose 8 timesteps at a frequency of 0.11 seconds.  I arrived at these values through trial and error of hoping to get my car to go as fast as possible.
 
 ## Polynomial Fitting
-Simulation waypoints are fitted to a polynomial. 
+Simulation waypoints are fitted to a polynomial.
+
 ---
 
 ## Dependencies
