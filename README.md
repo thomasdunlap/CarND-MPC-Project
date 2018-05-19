@@ -3,6 +3,8 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## MPC Model Description
+
 My Model Predictive Controller (MPC) project is a kinematic bicycle model that operates in a simulated environment, and ignores tire-road forces such as torque, friction, and inertia.  The simulator provides values like direction, position, speed, and reference waypoints for the model to potentially take advantage of.  The MPC is designed around this code:
 
 ```c
@@ -24,16 +26,43 @@ These variables represent:
 |cte     | Cross-track error|
 |epsi    | Orientation error|
 
-
-## Simulation Video
-Here is a short video of my MPC guiding the car around the simulation: #####
-
-
 ## Frequency and Timesteps
-I chose 8 timesteps at a frequency of 0.11 seconds.  I arrived at these values through trial and error of hoping to get my car to go as fast as possible.
+I chose 8 timesteps at a frequency of 0.11 seconds.  I arrived at these values through trial and error of hoping to get my car to go as fast as possible. I found that the more timesteps I added, the more difficult it was to the steering adjustments to reset to zero on straight-a-ways.  The cte would just keep building until the car was wildly oversteering.
 
-## Polynomial Fitting
-Simulation waypoints are fitted to a polynomial.
+The frequency was also arrived at through trial and error, because if the frequency was much more or less than 0.11 seconds, the vehicle would turn too early or too late on corners.
+
+## Controlling for 100 ms Latency
+
+To account for this, I gave small coefficients to the reference state and first actuator values, and extremely large coefficients the the rest of the actuator values to smooth out future steering:
+
+```c
+// Cost stored in fg[0]
+ fg[0] = 0;
+
+  // Cost from reference state
+ for(int i = 0; i < N; i++) {
+   fg[0] += 100 * CppAD::pow(vars[cte_start + i] - ref_cte, 2);
+   fg[0] += 100 * CppAD::pow(vars[epsi_start + i] - ref_epsi, 2);
+   fg[0] += CppAD::pow(vars[v_start + i] - ref_v, 2);
+ }
+
+ // Cost from actuators.
+ for (int i = 0; i< N - 1; i++) {
+   fg[0] += 50 * CppAD::pow(vars[delta_start + i], 2);
+   fg[0] += 50 * CppAD::pow(vars[a_start + i], 2);
+ }
+
+ // Cost from actuations
+ for (int i = 0; i < N - 2; i++) {
+   // High coefficients smooth out steering
+   fg[0] += 250000 * CppAD::pow(vars[delta_start + i + 1] - vars[delta_start + i], 2);
+   fg[0] += 10000 * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
+ }
+```
+
+This way the majority of steering information would come from the present and immediate future, while still accounting for future steering angles with less immediate influence.
+
+
 
 ---
 
